@@ -5,10 +5,10 @@ import { EditProductForm } from "@/components/EditProductForm"
 export default async function EditProductPage({
   params,
 }: {
-  params: { id: string }
+  params: { id: Promise<string> }
 }) {
   const idParams = await params
-  const id = idParams.id || ""
+  const id = idParams.id?.toString() || ""
   const product = await prisma.product.findUnique({
     where: { id: id },
   })
