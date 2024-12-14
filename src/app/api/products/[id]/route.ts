@@ -6,8 +6,10 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const idParams = await params
+  const id = idParams.id || ""
   const product = await prisma.product.findUnique({
-    where: { id: params.id },
+    where: { id: id },
   })
   return NextResponse.json(product)
 }
@@ -16,9 +18,11 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const idParams = await params
+  const id = idParams.id || ""
   const json = await request.json()
   const product = await prisma.product.update({
-    where: { id: params.id },
+    where: { id: id },
     data: json,
   })
   return NextResponse.json(product)
@@ -28,8 +32,10 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const idParams = await params
+  const id = idParams.id || ""
   const product = await prisma.product.delete({
-    where: { id: params.id },
+    where: { id: id },
   })
   revalidatePath("/")
   return NextResponse.json(product)
