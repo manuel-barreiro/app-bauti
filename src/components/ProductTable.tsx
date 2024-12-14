@@ -17,6 +17,21 @@ import { ProductQRCode } from "./ProductQRCode"
 import Link from "next/link"
 import { Product } from "@prisma/client"
 import { Input } from "./ui/input"
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
+import { useState } from "react"
+import { useDeleteProduct } from "@/hooks/useProducts"
+import { useRouter } from "next/navigation"
+import { Loader2, LucideEye, EditIcon, TrashIcon } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface ProductTableProps {
   data: Product[]
@@ -35,6 +50,7 @@ export function ProductTable({
   onSearch,
   searchValue,
 }: ProductTableProps) {
+  const router = useRouter()
   const columns: ColumnDef<Product>[] = [
     {
       accessorKey: "name",
@@ -56,21 +72,85 @@ export function ProductTable({
     },
     {
       id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <div className="space-x-2">
-          <Link href={`/products/${row.original.id}`}>
-            <Button variant="outline" size="sm">
-              View
-            </Button>
-          </Link>
-          <Link href={`/products/${row.original.id}/edit`}>
-            <Button variant="outline" size="sm">
-              Edit
-            </Button>
-          </Link>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const queryClient = useQueryClient()
+        const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+        const deleteProduct = useDeleteProduct()
+        const product = row.original
+
+        const handleDelete = async () => {
+          try {
+            await deleteProduct.mutateAsync(product.id)
+            setShowDeleteDialog(false)
+            router.refresh()
+          } catch (error) {
+            console.error("Failed to delete product:", error)
+          }
+        }
+
+        return (
+          <>
+            <div className="space-x-2">
+              <Link href={`/products/${row.original.id}`}>
+                <Button variant="outline" size="sm">
+                  <LucideEye className="size-4" />
+                </Button>
+              </Link>
+              <Link href={`/products/${row.original.id}/edit`}>
+                <Button variant="outline" size="sm">
+                  <EditIcon className="size-4" />
+                </Button>
+              </Link>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={deleteProduct.isPending}
+              >
+                {deleteProduct.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <TrashIcon className="size-4" />
+                )}
+              </Button>
+            </div>
+
+            <AlertDialog
+              open={showDeleteDialog}
+              onOpenChange={setShowDeleteDialog}
+            >
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the product.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    disabled={deleteProduct.isPending}
+                  >
+                    {deleteProduct.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Delete"
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )
+      },
     },
   ]
 

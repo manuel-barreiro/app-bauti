@@ -2,15 +2,6 @@ import { CreateProductInput } from "@/types/product"
 import { Product } from "@prisma/client"
 
 export const productService = {
-  getProduct: async (id: string): Promise<Product> => {
-    const response = await fetch(`/api/products/${id}`)
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch product")
-    }
-
-    return response.json()
-  },
   create: async (data: CreateProductInput): Promise<Product> => {
     const response = await fetch("/api/products", {
       method: "POST",
@@ -37,6 +28,17 @@ export const productService = {
 
     if (!response.ok) {
       throw new Error("Failed to update product")
+    }
+
+    return response.json()
+  },
+  delete: async (id: string): Promise<Product> => {
+    const response = await fetch(`/api/products/${id}`, {
+      method: "DELETE",
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to delete product")
     }
 
     return response.json()

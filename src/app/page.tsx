@@ -4,14 +4,16 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 const ITEMS_PER_PAGE = 10
+type SearchParams = Promise<{ page?: string; search?: string }>
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { page?: string; search?: string }
+  searchParams: SearchParams
 }) {
-  const currentPage = Number(searchParams.page) || 0
-  const search = searchParams.search || ""
+  const params = await searchParams
+  const currentPage = Number(params.page) || 0
+  const search = params.search || ""
 
   const products = await prisma.product.findMany({
     where: {
@@ -22,6 +24,9 @@ export default async function Home({
     },
     skip: currentPage * ITEMS_PER_PAGE,
     take: ITEMS_PER_PAGE,
+    orderBy: {
+      name: "asc",
+    },
   })
   const total = await prisma.product.count({
     where: {

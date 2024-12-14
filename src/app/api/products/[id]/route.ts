@@ -1,5 +1,6 @@
-import { prisma } from '@/lib/prisma'
-import { NextResponse } from 'next/server'
+import { prisma } from "@/lib/prisma"
+import { revalidatePath } from "next/cache"
+import { NextResponse } from "next/server"
 
 export async function GET(
   request: Request,
@@ -30,5 +31,6 @@ export async function DELETE(
   const product = await prisma.product.delete({
     where: { id: params.id },
   })
+  revalidatePath("/")
   return NextResponse.json(product)
 }

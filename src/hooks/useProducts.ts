@@ -2,13 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { productService } from "@/services/productService"
 import type { CreateProductInput } from "@/types/product"
 
-export const useProduct = (id: string) => {
-  return useQuery({
-    queryKey: ["products", id],
-    queryFn: () => productService.getProduct(id),
-  })
-}
-
 export const useCreateProduct = () => {
   const queryClient = useQueryClient()
 
@@ -27,6 +20,17 @@ export const useUpdateProduct = (id: string) => {
     mutationFn: (data: CreateProductInput) => productService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] })
+    },
+  })
+}
+
+export const useDeleteProduct = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) => productService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products", "list"] })
     },
   })
 }
