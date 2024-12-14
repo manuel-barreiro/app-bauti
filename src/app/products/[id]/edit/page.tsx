@@ -2,13 +2,12 @@ import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import { EditProductForm } from "@/components/EditProductForm"
 
-export default async function EditProductPage({
+export default async function ProductPage({
   params,
 }: {
-  params: { id: Promise<string> }
+  params: Promise<{ id: string }>
 }) {
-  const idParams = await params
-  const id = idParams.id?.toString() || ""
+  const id = (await params).id
   const product = await prisma.product.findUnique({
     where: { id: id },
   })

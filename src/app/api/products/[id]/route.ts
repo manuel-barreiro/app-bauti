@@ -4,11 +4,9 @@ import { NextResponse } from "next/server"
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: Promise<string> } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const idParams = await params
-  const id = idParams.id?.toString() || ""
-
+  const id = (await params).id
   const product = await prisma.product.findUnique({
     where: { id: id },
   })
@@ -17,11 +15,9 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: Promise<string> } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const idParams = await params
-  const id = idParams.id?.toString() || ""
-
+  const id = (await params).id
   const json = await request.json()
   const product = await prisma.product.update({
     where: { id: id },
@@ -32,10 +28,9 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: Promise<string> } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const idParams = await params
-  const id = idParams.id?.toString() || ""
+  const id = (await params).id
 
   const product = await prisma.product.delete({
     where: { id: id },
