@@ -12,7 +12,7 @@ export default async function Home({
   searchParams: SearchParams
 }) {
   const params = await searchParams
-  const currentPage = Number(params.page) || 0
+  const currentPage = Number(params.page) || 1
   const search = params.search || ""
 
   const products = await prisma.product.findMany({
@@ -22,7 +22,7 @@ export default async function Home({
         mode: "insensitive",
       },
     },
-    skip: currentPage * ITEMS_PER_PAGE,
+    skip: (currentPage - 1) * ITEMS_PER_PAGE,
     take: ITEMS_PER_PAGE,
     orderBy: {
       name: "asc",
@@ -49,7 +49,7 @@ export default async function Home({
       <ProductTableWrapper
         data={products}
         pageCount={pageCount}
-        currentPage={currentPage}
+        currentPage={currentPage - 1}
         search={search}
       />
     </div>

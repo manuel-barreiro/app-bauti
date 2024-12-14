@@ -30,7 +30,14 @@ import {
 import { useState } from "react"
 import { useDeleteProduct } from "@/hooks/useProducts"
 import { useRouter } from "next/navigation"
-import { Loader2, LucideEye, EditIcon, TrashIcon } from "lucide-react"
+import {
+  Loader2,
+  LucideEye,
+  EditIcon,
+  TrashIcon,
+  Search,
+  X,
+} from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 
 interface ProductTableProps {
@@ -51,6 +58,14 @@ export function ProductTable({
   searchValue,
 }: ProductTableProps) {
   const router = useRouter()
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchInput, setSearchInput] = useState(searchValue)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSearching(true)
+    await onSearch(searchInput)
+    setIsSearching(false)
+  }
   const columns: ColumnDef<Product>[] = [
     {
       accessorKey: "name",
@@ -163,12 +178,38 @@ export function ProductTable({
   return (
     <div>
       <div className="mb-4">
-        <Input
-          placeholder="Search products..."
-          value={searchValue}
-          onChange={(e) => onSearch(e.target.value)}
-          className="max-w-sm"
-        />
+        <form onSubmit={handleSubmit} className="mb-4 flex gap-2">
+          <Input
+            placeholder="Search products..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="max-w-sm"
+          />
+          <Button type="submit" disabled={isSearching}>
+            {isSearching ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Search className="h-4 w-4" />
+            )}
+          </Button>
+        </form>
+        {searchValue && (
+          <div className="flex items-center gap-4">
+            <p className="text-sm text-muted-foreground">
+              Showing results for:{" "}
+              <span className="font-medium">{searchValue}</span>
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onSearch("")}
+              className="h-auto p-0"
+            >
+              <X className="mr-1 h-4 w-4" />
+              Show all
+            </Button>
+          </div>
+        )}
       </div>
       <Table>
         <TableHeader>

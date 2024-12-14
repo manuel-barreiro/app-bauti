@@ -19,12 +19,16 @@ export function ProductTableWrapper({
 }: ProductTableWrapperProps) {
   const router = useRouter()
 
-  const handleSearch = (term: string) => {
-    router.push(`/?search=${term}`)
+  const handleSearch = async (term: string) => {
+    if (term.trim() === "") {
+      router.push("/")
+    } else {
+      router.push(`/?search=${encodeURIComponent(term)}`)
+    }
   }
 
   const handlePageChange = (page: number) => {
-    router.push(`/?page=${page}${search ? `&search=${search}` : ""}`)
+    router.push(`/?page=${page + 1}${search ? `&search=${search}` : ""}`)
   }
 
   return (
