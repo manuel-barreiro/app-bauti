@@ -16,12 +16,15 @@ import { Button } from "@/components/ui/button"
 import { ProductQRCode } from "./ProductQRCode"
 import Link from "next/link"
 import { Product } from "@prisma/client"
+import { Input } from "./ui/input"
 
 interface ProductTableProps {
   data: Product[]
   pageCount: number
   currentPage: number
   onPageChange: (page: number) => void
+  onSearch: (term: string) => void
+  searchValue: string
 }
 
 export function ProductTable({
@@ -29,6 +32,8 @@ export function ProductTable({
   pageCount,
   currentPage,
   onPageChange,
+  onSearch,
+  searchValue,
 }: ProductTableProps) {
   const columns: ColumnDef<Product>[] = [
     {
@@ -77,6 +82,14 @@ export function ProductTable({
 
   return (
     <div>
+      <div className="mb-4">
+        <Input
+          placeholder="Search products..."
+          value={searchValue}
+          onChange={(e) => onSearch(e.target.value)}
+          className="max-w-sm"
+        />
+      </div>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -104,23 +117,49 @@ export function ProductTable({
           ))}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 0}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === pageCount - 1}
-        >
-          Next
-        </Button>
+      <div className="mt-4 flex items-center justify-between px-2">
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(0)}
+            disabled={currentPage === 0}
+          >
+            First
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 0}
+          >
+            Previous
+          </Button>
+          <span className="mx-4 text-sm text-muted-foreground">
+            Page {currentPage + 1} of {pageCount}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === pageCount - 1}
+          >
+            Next
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(pageCount - 1)}
+            disabled={currentPage === pageCount - 1}
+          >
+            Last
+          </Button>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Showing {currentPage * 10 + 1}-
+          {Math.min((currentPage + 1) * 10, pageCount * 10)} of {pageCount * 10}{" "}
+          items
+        </div>{" "}
       </div>
     </div>
   )

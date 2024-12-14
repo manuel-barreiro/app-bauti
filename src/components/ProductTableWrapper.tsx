@@ -8,23 +8,33 @@ interface ProductTableWrapperProps {
   data: Product[]
   pageCount: number
   currentPage: number
+  search: string
 }
 
 export function ProductTableWrapper({
   data,
   pageCount,
   currentPage,
+  search,
 }: ProductTableWrapperProps) {
   const router = useRouter()
+
+  const handleSearch = (term: string) => {
+    router.push(`/?search=${term}`)
+  }
+
+  const handlePageChange = (page: number) => {
+    router.push(`/?page=${page}${search ? `&search=${search}` : ""}`)
+  }
 
   return (
     <ProductTable
       data={data}
       pageCount={pageCount}
       currentPage={currentPage}
-      onPageChange={(page) => {
-        router.push(`/?page=${page}`)
-      }}
+      onPageChange={handlePageChange}
+      onSearch={handleSearch}
+      searchValue={search}
     />
   )
 }

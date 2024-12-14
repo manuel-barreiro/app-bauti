@@ -8,16 +8,29 @@ const ITEMS_PER_PAGE = 10
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { page?: string }
+  searchParams: { page?: string; search?: string }
 }) {
   const currentPage = Number(searchParams.page) || 0
+  const search = searchParams.search || ""
 
   const products = await prisma.product.findMany({
+    where: {
+      name: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
     skip: currentPage * ITEMS_PER_PAGE,
     take: ITEMS_PER_PAGE,
   })
-
-  const total = await prisma.product.count()
+  const total = await prisma.product.count({
+    where: {
+      name: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
+  })
   const pageCount = Math.ceil(total / ITEMS_PER_PAGE)
 
   return (
@@ -32,6 +45,7 @@ export default async function Home({
         data={products}
         pageCount={pageCount}
         currentPage={currentPage}
+        search={search}
       />
     </div>
   )
